@@ -8,7 +8,7 @@ import pylab as plt
 def fun(p):
     s = 0
     for pi in p:
-        if pi==0:
+        if pi<1e-10:
             continue
         # as we need to minimize, no minus
         s += np.log(pi)*pi

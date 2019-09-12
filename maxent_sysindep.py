@@ -12,7 +12,7 @@ mean2 = mean1
 
 
 def f(x):
-    if x==0:
+    if x<1e-10:
         return 0.0
     return  - x*np.log(x)
 
