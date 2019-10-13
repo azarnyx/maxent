@@ -127,5 +127,4 @@ if __name__=="__main__":
     ax[1].set_ylabel("Probability")
     ax[0].set_ylabel("Probability")
     ax[0].legend()
-    plt.savefig("Subsystems.png", format='png', dpi=250)
     plt.show()
