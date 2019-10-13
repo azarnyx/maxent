@@ -39,5 +39,5 @@ if __name__=="__main__":
     plt.bar(np.arange(1, 1+NUM_SIDES), sol.x)
     plt.xlabel("Side of dice")
     plt.ylabel("Probability")
-    plt.savefig("mean.png", format='png', dpi=250)
+    plt.savefig("pics/mean.png", format='png', dpi=250)
     plt.show()

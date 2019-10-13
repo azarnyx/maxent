@@ -38,4 +38,5 @@ if __name__=='__main__':
     x = np.linspace(1,num_sides, num_sides*10)
     gauss = 1/np.sqrt(2*np.pi*sigma**2)*np.exp(-(x-mean)**2/sigma**2/2.)
     plt.plot(x, gauss, c='C1')
+    plt.savefig("pics/variance.png", format='png', dpi=250)
     plt.show()
