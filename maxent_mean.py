@@ -1,9 +1,7 @@
-#!/usr/bin/python
-
 import numpy as np
 from scipy.optimize import minimize
-from scipy.optimize import LinearConstraint
 import pylab as plt
+
 
 def fun(p):
     s = 0
@@ -14,28 +12,32 @@ def fun(p):
         s += np.log(pi)*pi
     return s
 
-num_sides = 6 #100
-mean = 4.5 #40.
 
-ini_guess = np.array([1/num_sides]*num_sides)
+if __name__=="__main__":
+    NUM_SIDES = 6 
+    MEAN = 4.5
 
-# probability sum is one
-cons0 = LinearConstraint(np.ones(num_sides), 1., 1.)
+    ini_guess = np.array([1/NUM_SIDES]*NUM_SIDES)
 
-# all probabilities are positive (not necessary for fun, but might be helpful for other functions)
-cons1 = LinearConstraint(np.identity(num_sides), np.zeros(num_sides), np.array([np.inf]*num_sides))
+    # probability sum is one
+    cons0 = {'type':'eq', 'fun': lambda x: np.ones(NUM_SIDES).dot(x) - 1. }
+    
+    # all probabilities are positive
+    # (not necessary for entropy, but might be helpful for other functions)
+    bnds = tuple([(0, None)]*(NUM_SIDES))
 
-# known mean
-cons2 = LinearConstraint(np.arange(1, 1+num_sides), mean, mean)
+    # known mean
+    cons1 = {'type':'ineq', 'fun': lambda x: np.arange(1, 1+NUM_SIDES).dot(x)-MEAN}
 
-# equal to exponential in continuous case only
-# in discrete somewhat in between uniform and exponential
-plt.figure(figsize=(6.4,2.4))
-sol = minimize(fun, ini_guess, constraints=[cons0, cons2], options={'maxiter':1001})
-plt.bar(np.arange(1, 1+num_sides), sol.x)
-# x = np.linspace(1, num_sides, num_sides*10)
-# plt.plot(x, 1/(mean) * np.exp(-x/mean),c='C1')
-plt.xlabel("Side of dice")
-plt.ylabel("Probability")
-plt.savefig("mean.png", format='png', dpi=250)
-plt.show()
+    # equal to exponential in continuous case only
+    # in discrete somewhat in between uniform and exponential
+    plt.figure(figsize=(6.4, 2.4))
+    sol = minimize(fun, ini_guess, bounds=bnds,
+                   constraints=[cons0, cons1], options={'maxiter':1001})
+
+    # plot
+    plt.bar(np.arange(1, 1+NUM_SIDES), sol.x)
+    plt.xlabel("Side of dice")
+    plt.ylabel("Probability")
+    plt.savefig("mean.png", format='png', dpi=250)
+    plt.show()
