@@ -22,19 +22,19 @@ def sum_form(p):
     return s
 
 
-def cons20_joint(params):
-    """ constraints on mean. LOOKUP_MAP global """
+def cons20_joint(params, lookup_map):
+    """ constraints on mean. lookup_map global """
     s = 0
     for ni, (pij) in enumerate(params):
-        s += pij*LOOKUP_MAP[ni][0] # conditions for p
+        s += pij*lookup_map[ni][0] # conditions for p
     return s
 
 
-def cons21_joint(params):
-    """ constraints on mean. LOOKUP_MAP global """
+def cons21_joint(params, lookup_map):
+    """ constraints on mean. lookup_map global """
     s = 0
     for ni, (pij) in enumerate(params):
-        s += pij*LOOKUP_MAP[ni][1] # conditions for q
+        s += pij*lookup_map[ni][1] # conditions for q
     return s
 
 
@@ -79,19 +79,18 @@ if __name__=="__main__":
     bnds = tuple([(0, None)]*(NUM_SIDES2*NUM_SIDES1))
 
     # remember number of probabilities
-    LOOKUP_MAP = {}
+    lookup_map = {}
     for ni, piqj in enumerate(itertools.product(sides1, sides2)):
-        LOOKUP_MAP[ni] = piqj
-
+        lookup_map[ni] = piqj
     # common guesses
-    guess_common = np.ones(len(LOOKUP_MAP))/len(LOOKUP_MAP)
+    guess_common = np.ones(len(lookup_map))/len(lookup_map)
 
     # common constrain on sum to 1
     ccons0 = ({'type': 'eq', 'fun': lambda p: np.sum(p) - 1.})
 
     # constrains on mean
-    ccons20 = ({'type': 'eq', 'fun': lambda x: cons20_joint(x)-MEAN1})
-    ccons21 = ({'type': 'eq', 'fun': lambda x: cons21_joint(x)-MEAN2})
+    ccons20 = {'type': 'eq', 'fun': lambda x, lt: cons20_joint(x, lt)-MEAN1, 'args': (lookup_map,)}
+    ccons21 = {'type': 'eq', 'fun': lambda x, lt: cons21_joint(x, lt)-MEAN2, 'args': (lookup_map,)}
 
 
     sol_common = minimize(sum_form,
@@ -100,7 +99,7 @@ if __name__=="__main__":
                           constraints=[ccons0,
                                        ccons20,
                                        ccons21],
-                          options={'maxiter':10001})
+                          options={'maxiter': 10001})
 
     ########### EVALUATE #############
     # check p1*p2=p12
@@ -112,7 +111,7 @@ if __name__=="__main__":
     # integrate on x1 and x2 to derive marginal pdf and plot them
     p1_c = np.zeros(NUM_SIDES1)
     p2_c = np.zeros(NUM_SIDES2)
-    for j, i in zip(LOOKUP_MAP.items(), sol_common.x):
+    for j, i in zip(lookup_map.items(), sol_common.x):
         p1_c[int(j[1][0])-1]+=i
         p2_c[int(j[1][1])-1]+=i
 
